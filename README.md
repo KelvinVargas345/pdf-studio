@@ -1,6 +1,6 @@
 # PDF Studio
 
-Aplicación web progresiva (PWA), responsive y local-first. Versión 2.
+Aplicación web progresiva (PWA), responsive y local-first. Versión 3.
 
 ## Ejecutar
 Sirve esta carpeta mediante un servidor HTTP (no abras index.html directamente):
@@ -14,7 +14,8 @@ Para instalarla en iPhone: publica la carpeta en un hosting HTTPS, abre la URL e
 - Extraer rangos de páginas
 - Eliminar páginas
 - Rotar páginas
-- Imágenes JPG/PNG a PDF
+- Vista previa del archivo elegido (primera página del PDF, con botones para pasar de página; miniatura de la imagen) y del resultado generado, antes de descargar
+- Imágenes JPG/PNG/HEIC a PDF (una por página, ajustada a A4)
 - PDF a JPG (una descarga por página)
 - Añadir marca de agua
 - Numerar páginas
@@ -35,11 +36,15 @@ Todo se procesa en el navegador, sin subir archivos a un servidor. Los motores s
 - OCR: Tesseract.js (5.0.0); la primera vez descarga el modelo de idioma (español ~8 MB).
 - Proteger / Desbloquear: QPDF compilado a WebAssembly (0.3.0), cifrado AES-256 estándar, el mismo que usan Adobe Acrobat y los lectores del sistema. Sin la contraseña correcta no se puede desbloquear: no hay forma de recuperar una clave olvidada.
 - Firmar: pdf-lib dibuja la firma en la página elegida.
+- Imágenes a PDF (v3): el navegador decodifica la imagen (JPG progresivo o CMYK, PNG, WebP y HEIC en Safari), corrige la orientación EXIF, la reduce a un máximo de 2000 px y la coloca en una página A4. Así ya no falla con las fotos del iPhone, que llegan en HEIC o sin tipo MIME reconocido.
+- Vista previa (v3): al elegir archivos se muestra la primera página del PDF (con anterior/siguiente) o la imagen; tras procesar, se muestra la primera página del PDF generado o la imagen resultante.
 
 ## Límites honestos
 - Word, Excel y PowerPoint se crean a partir del texto del PDF: se conserva el texto y su orden, no el diseño exacto, las tablas complejas ni las imágenes. Un PDF escaneado (solo imágenes, sin texto) produce un documento vacío: usa OCR primero para leerlo.
 - El OCR depende de la calidad de la imagen; con texto borroso o manuscrito puede equivocarse.
 - Desbloquear no adivina contraseñas: necesita la clave correcta.
 - La compresión real depende del contenido y puede no reducir el tamaño.
+- HEIC fuera de Safari (por ejemplo, en Chrome de escritorio) no se puede decodificar: la app avisa y sugiere compartir la foto como JPG desde el iPhone o activar «Más compatible» en Ajustes > Cámara > Formatos.
+- La vista previa de Word, Excel, PowerPoint y texto OCR no se puede dibujar en la página: se muestra un aviso y el archivo se descarga igual.
 
 Las librerías se cargan desde CDN, por lo que se necesita internet para cargarlas en el primer uso. Para un despliegue de producción, conviene fijar versiones y alojar las dependencias localmente.
