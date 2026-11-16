@@ -34,7 +34,7 @@ footer{max-width:1180px;margin:28px auto;padding:0 22px 30px;padding-left:max(22
 <div class="actions"><button class="primary" id="run" disabled>Procesar PDF</button><button class="secondary" id="clear">Limpiar archivos</button></div><div class="status" id="status" aria-live="polite"></div>
 </section>
 <aside class="side"><h3>Herramientas</h3><div class="toolgrid" id="toolgrid"></div><div class="notice">Tus documentos se procesan en tu navegador. No se envían a un servidor en esta versión.</div><p class="note">Para documentos confidenciales, utiliza un dispositivo de confianza y evita compartir archivos descargados públicamente.</p></aside></div>
-</main><footer>PDF Studio v3.8 · Aplicación web progresiva (PWA). Todo se procesa en tu navegador: Word, Excel y PowerPoint se crean a partir del texto del PDF; el OCR lee páginas escaneadas; Proteger cifra con AES-256 y Desbloquear quita la contraseña con la clave correcta. Vista previa del archivo elegido y del resultado, antes de descargar. JPG, PNG y fotos HEIC del iPhone se convierten a PDF en páginas A4.</footer>
+</main><footer>PDF Studio v3.8.1 · Aplicación web progresiva (PWA). Todo se procesa en tu navegador: Word, Excel y PowerPoint se crean a partir del texto del PDF; el OCR lee páginas escaneadas; Proteger cifra con AES-256 y Desbloquear quita la contraseña con la clave correcta. Vista previa del archivo elegido y del resultado, antes de descargar. JPG, PNG y fotos HEIC del iPhone se convierten a PDF en páginas A4.</footer>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
@@ -149,7 +149,7 @@ if(selected==='rotate'){const deg=Number($('degrees').value);pages.forEach(p=>p.
 if(selected==='watermark'||selected==='number'){const font=await pdf.embedFont(StandardFonts.Helvetica);pages.forEach((p,i)=>{const {width,height}=p.getSize();if(selected==='watermark'){p.drawText($('watermark').value||'CONFIDENCIAL',{x:width*.15,y:height*.48,size:34,font,color:rgb(.7,.7,.7),opacity:.35,rotate:degrees(35)})}else{const s=($('prefix').value||'')+(i+1);p.drawText(s,{x:width/2-20,y:18,size:10,font,color:rgb(.25,.25,.25)})}});download(await pdf.save(),selected==='watermark'?'con-marca-de-agua.pdf':'numerado.pdf')}
 if(selected==='compress'){await runCompress()}
 }}
-await showOutputPreview();setStatus('Listo. La descarga se ha generado en tu dispositivo.');
+await showOutputPreview();if(!$('status').textContent.startsWith('Listo'))setStatus('Listo. La descarga se ha generado en tu dispositivo.');
 }catch(err){console.error(err);const m=err&&err.message||'';
 if(m==='IMG_DECODE')setStatus('No se pudo leer esa imagen. Si es una foto del iPhone en HEIC y este navegador no la lee, ábrela en Fotos y compártela como JPG, o en Ajustes > Cámara > Formatos elige «Más compatible».');
 else if(m==='NOIMAGES')setStatus('No se encontró ninguna imagen válida entre los archivos elegidos.');
