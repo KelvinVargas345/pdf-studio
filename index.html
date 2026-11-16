@@ -32,7 +32,7 @@ footer{max-width:1180px;margin:28px auto;padding:0 22px 30px;color:var(--muted);
 <div class="actions"><button class="primary" id="run" disabled>Procesar PDF</button><button class="secondary" id="clear">Limpiar archivos</button></div><div class="status" id="status" aria-live="polite"></div>
 </section>
 <aside class="side"><h3>Herramientas</h3><div class="toolgrid" id="toolgrid"></div><div class="notice">Tus documentos se procesan en tu navegador. No se envían a un servidor en esta versión.</div><p class="note">Para documentos confidenciales, utiliza un dispositivo de confianza y evita compartir archivos descargados públicamente.</p></aside></div>
-</main><footer>PDF Studio · Aplicación web progresiva (PWA). Algunas conversiones avanzadas requieren un motor especializado y no se simulan.</footer>
+</main><footer>PDF Studio · Aplicación web progresiva (PWA). Todo se procesa en tu navegador: Word, Excel y PowerPoint se crean a partir del texto del PDF; el OCR lee páginas escaneadas; Proteger cifra con AES-256 y Desbloquear quita la contraseña con la clave correcta.</footer>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
@@ -47,26 +47,30 @@ const tools=[
 {id:'compress',name:'Comprimir PDF',desc:'Optimiza y vuelve a guardar el documento.',icon:'📦',group:'convert'},
 {id:'watermark',name:'Marca de agua',desc:'Añade una marca de agua de texto.',icon:'💧',group:'edit'},
 {id:'number',name:'Numerar páginas',desc:'Añade números al pie de cada página.',icon:'🔢',group:'edit'},
-{id:'protect',name:'Proteger PDF',desc:'Cifra el PDF con contraseña.',icon:'🔒',group:'security'},
-{id:'word',name:'PDF a Word',desc:'Conversión editable: requiere motor externo.',icon:'📝',group:'convert',advanced:true},
-{id:'excel',name:'PDF a Excel',desc:'Extracción de tablas: requiere motor externo.',icon:'📊',group:'convert',advanced:true},
-{id:'ppt',name:'PDF a PowerPoint',desc:'Conversión editable: requiere motor externo.',icon:'📽️',group:'convert',advanced:true},
-{id:'unlock',name:'Desbloquear PDF',desc:'Requiere la contraseña válida del archivo.',icon:'🔓',group:'security',advanced:true},
-{id:'sign',name:'Firmar PDF',desc:'Firma visual: próximamente.',icon:'✍️',group:'edit',advanced:true},
-{id:'ocr',name:'OCR',desc:'Reconocimiento de texto: requiere motor OCR.',icon:'🔎',group:'convert',advanced:true}
+{id:'protect',name:'Proteger PDF',desc:'Cifra el PDF con contraseña (AES-256).',icon:'🔒',group:'security'},
+{id:'word',name:'PDF a Word',desc:'Extrae el texto a un Word editable (.docx).',icon:'📝',group:'convert'},
+{id:'excel',name:'PDF a Excel',desc:'Extrae el texto a una hoja de cálculo (.xlsx).',icon:'📊',group:'convert'},
+{id:'ppt',name:'PDF a PowerPoint',desc:'Una diapositiva por página (.pptx).',icon:'📽️',group:'convert'},
+{id:'unlock',name:'Desbloquear PDF',desc:'Quita la contraseña con la clave correcta.',icon:'🔓',group:'security'},
+{id:'sign',name:'Firmar PDF',desc:'Añade firma visual: texto o imagen.',icon:'✍️',group:'edit'},
+{id:'ocr',name:'OCR',desc:'Lee el texto de páginas escaneadas (es + en).',icon:'🔎',group:'convert'}
 ];
 let selected='merge', picked=[];
 const $=id=>document.getElementById(id);
 const fmt=n=>n<1024*1024?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';
+const setStatus=s=>{$('status').textContent=s};
 function renderTools(group='organize'){ $('toolgrid').innerHTML=tools.filter(t=>t.group===group).map(t=>`<button class="tool ${t.id===selected?'active':''}" data-tool="${t.id}"><span class="ico">${t.icon}</span><b>${t.name}</b><small>${t.desc}</small></button>`).join('');}
-function choose(id){selected=id;const t=tools.find(x=>x.id===id);$('toolTitle').textContent=t.name;$('toolDesc').textContent=t.desc;$('run').textContent=t.advanced?'Ver requisitos':'Procesar';$('run').disabled=false;renderTools(document.querySelector('.tab.active').dataset.tab);renderControls();}
-function renderControls(){let html='';const field=(label,id,placeholder,value='')=>`<div class="field"><label>${label}</label><input id="${id}" placeholder="${placeholder}" value="${value}"></div>`;
+function choose(id){selected=id;const t=tools.find(x=>x.id===id);$('toolTitle').textContent=t.name;$('toolDesc').textContent=t.desc;$('run').textContent='Procesar';$('run').disabled=false;renderTools(document.querySelector('.tab.active').dataset.tab);renderControls();}
+function renderControls(){let html='';const field=(label,id,placeholder,value='',type='text')=>`<div class="field"><label>${label}</label><input id="${id}" type="${type}" placeholder="${placeholder}" value="${value}"></div>`;
 if(selected==='split')html=field('Páginas a extraer (ej. 1-3,5)','range','1-3,5');
 if(selected==='remove')html=field('Páginas que deseas eliminar','range','2,4-6');
 if(selected==='rotate')html=`<div class="field"><label>Rotación</label><select id="degrees"><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>`;
 if(selected==='watermark')html=field('Texto de marca de agua','watermark','CONFIDENCIAL','CONFIDENCIAL');
 if(selected==='number')html=field('Texto antes del número (opcional)','prefix','Ej. Página','Página ');
-if(selected==='protect')html=field('Contraseña','password','Escribe una contraseña');
+if(selected==='protect')html=field('Contraseña (mín. 4 caracteres)','password','Escribe una contraseña','','password')+field('Repite la contraseña','password2','Repite la contraseña','','password');
+if(selected==='unlock')html=field('Contraseña actual del PDF','password','Contraseña del archivo','','password');
+if(selected==='sign')html=field('Nombre del firmante','signer','Tu nombre')+field('Fecha','signdate','',new Date().toLocaleDateString('es-DO'))+`<div class="field"><label>Página para firmar</label><select id="signpage"><option value="last">Última página</option><option value="first">Primera página</option></select></div><div class="field"><label>O número de página</label><input id="signpagenum" inputmode="numeric" placeholder="Ej. 2"></div>`;
+if(selected==='ocr')html=`<div class="field"><label>Idioma del documento</label><select id="ocrlang"><option value="spa+eng">Español + inglés</option><option value="spa">Solo español</option><option value="eng">Solo inglés</option></select></div>`;
 $('controls').innerHTML=html;}
 function renderFiles(){$('fileList').innerHTML=picked.map((f,i)=>`<div class="file"><div><b>${f.name}</b><br><small>${fmt(f.size)}</small></div><button class="remove" data-remove="${i}">Quitar</button></div>`).join('');$('run').disabled=!picked.length;}
 $('toolgrid').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b)choose(b.dataset.tool)});
@@ -76,24 +80,63 @@ $('files').onchange=e=>{picked.push(...e.target.files);renderFiles();e.target.va
 $('drop').ondragover=e=>{e.preventDefault();$('drop').classList.add('drag')};$('drop').ondragleave=()=> $('drop').classList.remove('drag');
 $('drop').ondrop=e=>{e.preventDefault();$('drop').classList.remove('drag');picked.push(...e.dataTransfer.files);renderFiles()};
 $('fileList').onclick=e=>{const b=e.target.closest('[data-remove]');if(b){picked.splice(+b.dataset.remove,1);renderFiles()}};
-$('clear').onclick=()=>{picked=[];renderFiles();$('status').textContent='Archivos retirados.'};
+$('clear').onclick=()=>{picked=[];renderFiles();setStatus('Archivos retirados.')};
 function download(bytes,name,type='application/pdf'){const blob=new Blob([bytes],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
 function parseRange(s,total){let out=new Set();for(const part of s.split(',')){let [a,b]=part.trim().split('-').map(Number);if(!a||a<1||a>total)continue;b=b||a;for(let i=a;i<=Math.min(b,total);i++)out.add(i-1)}return [...out].sort((a,b)=>a-b)}
+/* --- Carga perezosa de motores: solo se descargan cuando se usan --- */
+const _scripts={};
+function loadScript(src){if(_scripts[src])return _scripts[src];_scripts[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=()=>res();s.onerror=()=>rej(new Error('No se pudo cargar '+src));document.head.appendChild(s)});return _scripts[src]}
+let _qpdf=null;
+async function getQpdf(){if(_qpdf)return _qpdf;setStatus('Cargando motor de cifrado (QPDF)…');await loadScript('https://cdn.jsdelivr.net/npm/@neslinesli93/qpdf-wasm@0.3.0/dist/qpdf.js');const factory=window.Module;if(typeof factory!=='function')throw new Error('El motor QPDF no cargó correctamente.');_qpdf=await factory({locateFile:()=>'https://cdn.jsdelivr.net/npm/@neslinesli93/qpdf-wasm@0.3.0/dist/qpdf.wasm'});return _qpdf}
+function qpdfRun(qpdf,args,inBytes){const tag=Date.now()+''+Math.floor(Math.random()*1000);const inp='/in-'+tag+'.pdf',outp='/out-'+tag+'.pdf';try{qpdf.FS.writeFile(inp,inBytes);const full=args.map(a=>a==='IN'?inp:a==='OUT'?outp:a);const rc=qpdf.callMain(full);if(rc!==0)throw new Error('QPDF terminó con código '+rc);const data=qpdf.FS.readFile(outp);return new Uint8Array(data)}finally{try{qpdf.FS.unlink(inp)}catch(e){}try{qpdf.FS.unlink(outp)}catch(e){}}}
+/* --- Extracción de texto con pdf.js, agrupada por líneas --- */
+async function extractTextPages(bytes){let doc;try{doc=await pdfjsLib.getDocument({data:bytes}).promise}catch(err){if(err&&err.name==='PasswordException')throw new Error('PASSWORD');throw err}
+const pages=[];for(let n=1;n<=doc.numPages;n++){setStatus('Extrayendo texto… página '+n+' de '+doc.numPages);const page=await doc.getPage(n);const tc=await page.getTextContent();const byY={};for(const it of tc.items){if(!it.str)continue;const y=Math.round((it.transform[5]||0)/2)*2;const h=it.height||Math.abs(it.transform[3]||it.transform[0]||10);(byY[y]=byY[y]||{y,parts:[],size:0});byY[y].parts.push({x:it.transform[4]||0,str:it.str});byY[y].size=Math.max(byY[y].size,h)}
+const lines=Object.values(byY).sort((a,b)=>b.y-a.y).map(g=>({text:g.parts.sort((a,b)=>a.x-b.x).map(p=>p.str).join('').replace(/\s+/g,' ').trim(),size:g.size})).filter(l=>l.text);
+pages.push({n,lines,text:lines.map(l=>l.text).join('\n')})}return pages}
+function requireText(pages){const total=pages.map(p=>p.text).join('\n').trim();if(!total)throw new Error('EMPTY');return total}
+async function convertWord(){const f=picked[0];setStatus('Cargando motor de Word…');await loadScript('https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js');const pages=await extractTextPages(await f.arrayBuffer());requireText(pages);setStatus('Creando documento Word…');const sizes=pages.flatMap(p=>p.lines.map(l=>l.size)).sort((a,b)=>a-b);const median=sizes.length?sizes[Math.floor(sizes.length/2)]:11;const children=[];pages.forEach((pg,pi)=>{if(pi>0)children.push(new docx.Paragraph({children:[new docx.TextRun('')],pageBreakBefore:true}));pg.lines.forEach(l=>{const big=l.size>=median*1.35&&l.text.length<90;children.push(new docx.Paragraph({heading:big?docx.HeadingLevel.HEADING_1:undefined,children:[new docx.TextRun({text:l.text,bold:big,size:big?28:22})]}))})});const doc=new docx.Document({sections:[{children}]});const blob=await docx.Packer.toBlob(doc);downloadBlob(blob,f.name.replace(/\.pdf$/i,'')+'.docx')}
+async function convertExcel(){const f=picked[0];setStatus('Cargando motor de Excel…');await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');const pages=await extractTextPages(await f.arrayBuffer());requireText(pages);setStatus('Creando hoja de cálculo…');const wb=XLSX.utils.book_new();pages.forEach(pg=>{const rows=pg.lines.map(l=>{const cells=l.text.split(/\s{2,}|\t/).map(s=>s.trim()).filter(Boolean);return cells.length?cells:[l.text]});const ws=XLSX.utils.aoa_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,pg.n===1&&pages.length===1?'Contenido':'Pág '+pg.n)});const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});download(out,f.name.replace(/\.pdf$/i,'')+'.xlsx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
+async function convertPpt(){const f=picked[0];setStatus('Cargando motor de PowerPoint…');await loadScript('https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');const pages=await extractTextPages(await f.arrayBuffer());requireText(pages);setStatus('Creando presentación…');const pptx=new PptxGenJS();pptx.defineLayout({name:'W',width:13.33,height:7.5});pptx.layout='W';pages.forEach(pg=>{const s=pptx.addSlide();s.addText('Página '+pg.n,{x:0.5,y:0.25,w:12.33,h:0.4,fontSize:18,bold:true,color:'5B5CE2'});s.addText(pg.text||'(Página sin texto)',{x:0.5,y:0.8,w:12.33,h:6.2,fontSize:13,color:'202238',valign:'top'})});await pptx.writeFile({fileName:f.name.replace(/\.pdf$/i,'')+'.pptx'})}
+async function runOcr(){const f=picked[0];setStatus('Cargando motor OCR…');await loadScript('https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.0/tesseract.min.js');const lang=($('ocrlang')&&$('ocrlang').value)||'spa+eng';let out='';if(f.type.startsWith('image/')){setStatus('Reconociendo texto de la imagen… (primera vez descarga el modelo de idioma)');const r=await Tesseract.recognize(f,lang,{logger:m=>{if(m.status==='recognizing text')setStatus('Reconociendo texto… '+Math.round((m.progress||0)*100)+'%')}});out=r.data.text.trim()}
+else{const bytes=await f.arrayBuffer();let doc;try{doc=await pdfjsLib.getDocument({data:bytes}).promise}catch(err){if(err&&err.name==='PasswordException')throw new Error('PASSWORD');throw err}
+for(let n=1;n<=doc.numPages;n++){setStatus('OCR… página '+n+' de '+doc.numPages);const p=await doc.getPage(n),v=p.getViewport({scale:2}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;const blob=await new Promise(r=>c.toBlob(r,'image/png'));const r=await Tesseract.recognize(blob,lang,{logger:m=>{if(m.status==='recognizing text')setStatus('OCR página '+n+'… '+Math.round((m.progress||0)*100)+'%')}});out+='--- Página '+n+' ---\n'+r.data.text.trim()+'\n\n'}}
+if(!out.trim())throw new Error('EMPTY_OCR');download(new TextEncoder().encode(out),f.name.replace(/\.(pdf|png|jpe?g)$/i,'')+'-ocr.txt','text/plain')}
+async function runProtect(){const pw=$('password').value||'',pw2=$('password2').value||'';if(pw.length<4)throw new Error('SHORTPASS');if(pw!==pw2)throw new Error('MISMATCH');const f=picked[0];const qpdf=await getQpdf();setStatus('Cifrando con AES-256…');const out=qpdfRun(qpdf,['IN','--encrypt',pw,pw,'256','--','OUT'],new Uint8Array(await f.arrayBuffer()));download(out,f.name.replace(/\.pdf$/i,'')+'-protegido.pdf')}
+async function runUnlock(){const pw=$('password').value||'';if(!pw)throw new Error('NOPASS');const f=picked[0];const qpdf=await getQpdf();setStatus('Desbloqueando…');const out=qpdfRun(qpdf,['--password='+pw,'--decrypt','IN','OUT'],new Uint8Array(await f.arrayBuffer()));download(out,f.name.replace(/\.pdf$/i,'')+'-desbloqueado.pdf')}
+async function runSign(){const f=picked[0];const {PDFDocument,StandardFonts,rgb,degrees}=PDFLib;const pdf=await PDFDocument.load(await f.arrayBuffer());const pages=pdf.getPages();let idx=pages.length-1;const num=($('signpagenum')&&$('signpagenum').value||'').trim();if(num){const n=parseInt(num,10);if(!n||n<1||n>pages.length)throw new Error('BADPAGE');idx=n-1}else if($('signpage')&&$('signpage').value==='first')idx=0;const page=pages[idx],{width,height}=page.getSize();const name=($('signer').value||'').trim()||'Firmado';const date=($('signdate').value||'').trim();const imgFile=picked.slice(1).find(x=>x.type.startsWith('image/'));const font=await pdf.embedFont(StandardFonts.HelveticaOblique);const small=await pdf.embedFont(StandardFonts.Helvetica);if(imgFile){const bytes=await imgFile.arrayBuffer();let img;if(imgFile.type==='image/png')img=await pdf.embedPng(bytes);else img=await pdf.embedJpg(bytes);const w=180,h=180*img.height/img.width;page.drawImage(img,{x:72,y:100,width:w,height:Math.min(h,70)})}else{page.drawText(name,{x:74,y:118,size:18,font,color:rgb(.15,.15,.3)})}
+page.drawLine({start:{x:72,y:108},end:{x:300,y:108},thickness:1,color:rgb(.3,.3,.35)});page.drawText(name+(date?'  ·  '+date:''),{x:72,y:92,size:10,font:small,color:rgb(.3,.3,.35)});download(await pdf.save(),f.name.replace(/\.pdf$/i,'')+'-firmado.pdf')}
 async function process(){
-const t=tools.find(x=>x.id===selected);if(t.advanced){$('status').textContent='Esta función requiere un motor adicional. No se ha modificado ni enviado ningún archivo.';return}
-try{$('run').disabled=true;$('status').textContent='Procesando localmente…';const {PDFDocument,StandardFonts,rgb,degrees}=PDFLib;
+try{$('run').disabled=true;setStatus('Procesando localmente…');
+if(selected==='word'){await convertWord()}
+else if(selected==='excel'){await convertExcel()}
+else if(selected==='ppt'){await convertPpt()}
+else if(selected==='ocr'){await runOcr()}
+else if(selected==='protect'){await runProtect()}
+else if(selected==='unlock'){await runUnlock()}
+else if(selected==='sign'){await runSign()}
+else{const {PDFDocument,StandardFonts,rgb,degrees}=PDFLib;
 if(selected==='imagespdf'){const out=await PDFDocument.create();for(const f of picked){const bytes=await f.arrayBuffer();let img;if(f.type==='image/png')img=await out.embedPng(bytes);else if(f.type==='image/jpeg')img=await out.embedJpg(bytes);else continue;const page=out.addPage([img.width,img.height]);page.drawImage(img,{x:0,y:0,width:img.width,height:img.height})}download(await out.save(),'imagenes.pdf')}
 else if(selected==='merge'){const out=await PDFDocument.create();for(const f of picked){const src=await PDFDocument.load(await f.arrayBuffer());const pages=await out.copyPages(src,src.getPageIndices());pages.forEach(p=>out.addPage(p))}download(await out.save(),'unido.pdf')}
-else if(selected==='pdfjpg'){const f=picked[0],doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;for(let n=1;n<=doc.numPages;n++){const p=await doc.getPage(n),v=p.getViewport({scale:1.7}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));download(await blob.arrayBuffer(),`pagina-${n}.jpg`,'image/jpeg')}}
+else if(selected==='pdfjpg'){const f=picked[0],doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;for(let n=1;n<=doc.numPages;n++){setStatus('Exportando imagen… página '+n+' de '+doc.numPages);const p=await doc.getPage(n),v=p.getViewport({scale:1.7}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));download(await blob.arrayBuffer(),`pagina-${n}.jpg`,'image/jpeg')}}
 else{const f=picked[0],pdf=await PDFDocument.load(await f.arrayBuffer()),pages=pdf.getPages();
 if(selected==='split'||selected==='remove'){const chosen=parseRange($('range').value,pages.length);const indices=selected==='split'?chosen:pages.map((_,i)=>i).filter(i=>!chosen.includes(i));const out=await PDFDocument.create(),copied=await out.copyPages(pdf,indices);copied.forEach(p=>out.addPage(p));download(await out.save(),selected==='split'?'extraido.pdf':'sin-paginas.pdf')}
 if(selected==='rotate'){const deg=Number($('degrees').value);pages.forEach(p=>p.setRotation(degrees((p.getRotation().angle+deg)%360)));download(await pdf.save(),'rotado.pdf')}
 if(selected==='watermark'||selected==='number'){const font=await pdf.embedFont(StandardFonts.Helvetica);pages.forEach((p,i)=>{const {width,height}=p.getSize();if(selected==='watermark'){p.drawText($('watermark').value||'CONFIDENCIAL',{x:width*.15,y:height*.48,size:34,font,color:rgb(.7,.7,.7),opacity:.35,rotate:degrees(35)})}else{const s=($('prefix').value||'')+(i+1);p.drawText(s,{x:width/2-20,y:18,size:10,font,color:rgb(.25,.25,.25)})}});download(await pdf.save(),selected==='watermark'?'con-marca-de-agua.pdf':'numerado.pdf')}
 if(selected==='compress'){download(await pdf.save({useObjectStreams:true,addDefaultPage:false}), 'optimizado.pdf')}
-if(selected==='protect'){$('status').textContent='La biblioteca local utilizada no cifra PDFs. Para proteger archivos se necesita integrar un motor de cifrado fiable; no se generó un archivo sin protección.'}
+}}
+setStatus('Listo. La descarga se ha generado en tu dispositivo.');
+}catch(err){console.error(err);const m=err&&err.message||'';
+if(m==='PASSWORD')setStatus('Este PDF tiene contraseña. Desbloquéalo primero con Desbloquear PDF.');
+else if(m==='EMPTY')setStatus('Este PDF no tiene texto (es una imagen escaneada). Usa OCR para leerlo primero.');
+else if(m==='EMPTY_OCR')setStatus('El OCR no encontró texto legible en este documento.');
+else if(m==='SHORTPASS')setStatus('La contraseña debe tener al menos 4 caracteres.');
+else if(m==='MISMATCH')setStatus('Las contraseñas no coinciden. Escríbelas iguales.');
+else if(m==='NOPASS')setStatus('Escribe la contraseña actual del PDF.');
+else if(m==='BADPAGE')setStatus('Ese número de página no existe en el documento.');
+else setStatus('No se pudo procesar el archivo. Comprueba que sea un PDF válido y que no tenga restricciones.');
 }
-$('status').textContent='Listo. La descarga se ha generado en tu dispositivo.';
-}catch(err){console.error(err);$('status').textContent='No se pudo procesar el archivo. Comprueba que sea un PDF válido y que no tenga restricciones.'}
 finally{$('run').disabled=!picked.length}
 }
 $('run').onclick=process;renderTools();choose('merge');
