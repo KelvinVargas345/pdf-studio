@@ -1,6 +1,6 @@
 # PDF Studio
 
-Aplicación web progresiva (PWA), responsive y local-first. Versión 3.
+Aplicación web progresiva (PWA), responsive y local-first. Versión 3.1.
 
 ## Ejecutar
 Sirve esta carpeta mediante un servidor HTTP (no abras index.html directamente):
@@ -15,6 +15,7 @@ Para instalarla en iPhone: publica la carpeta en un hosting HTTPS, abre la URL e
 - Eliminar páginas
 - Rotar páginas
 - Vista previa del archivo elegido (primera página del PDF, con botones para pasar de página; miniatura de la imagen) y del resultado generado, antes de descargar
+- Márgenes pensados para celular: respeta el área segura del iPhone (notch e indicador de inicio) y el botón de procesar ocupa todo el ancho
 - Imágenes JPG/PNG/HEIC a PDF (una por página, ajustada a A4)
 - PDF a JPG (una descarga por página)
 - Añadir marca de agua
@@ -38,6 +39,7 @@ Todo se procesa en el navegador, sin subir archivos a un servidor. Los motores s
 - Firmar: pdf-lib dibuja la firma en la página elegida.
 - Imágenes a PDF (v3): el navegador decodifica la imagen (JPG progresivo o CMYK, PNG, WebP y HEIC en Safari), corrige la orientación EXIF, la reduce a un máximo de 2000 px y la coloca en una página A4. Así ya no falla con las fotos del iPhone, que llegan en HEIC o sin tipo MIME reconocido.
 - Vista previa (v3): al elegir archivos se muestra la primera página del PDF (con anterior/siguiente) o la imagen; tras procesar, se muestra la primera página del PDF generado o la imagen resultante.
+- v3.1: la vista previa ya se actualiza bien al pasar de página y al cambiar de archivo (el CSS anulaba el atributo `hidden`, así que se veía contenido viejo y un icono de imagen rota), y la zona de subida ya no se corta ni se solapa con la descripción. Márgenes para celular: respeta el área segura del iPhone (notch e indicador de inicio) y el botón de procesar ocupa todo el ancho.
 
 ## Límites honestos
 - Word, Excel y PowerPoint se crean a partir del texto del PDF: se conserva el texto y su orden, no el diseño exacto, las tablas complejas ni las imágenes. Un PDF escaneado (solo imágenes, sin texto) produce un documento vacío: usa OCR primero para leerlo.
