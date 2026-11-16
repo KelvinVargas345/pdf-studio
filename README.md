@@ -1,6 +1,6 @@
 # PDF Studio
 
-Aplicación web progresiva (PWA), responsive y local-first. Versión 3.2.
+Aplicación web progresiva (PWA), responsive y local-first. Versión 3.3.
 
 ## Ejecutar
 Sirve esta carpeta mediante un servidor HTTP (no abras index.html directamente):
@@ -40,7 +40,8 @@ Todo se procesa en el navegador, sin subir archivos a un servidor. Los motores s
 - Imágenes a PDF (v3): el navegador decodifica la imagen (JPG progresivo o CMYK, PNG, WebP y HEIC en Safari), corrige la orientación EXIF, la reduce a un máximo de 2000 px y la coloca en una página A4. Así ya no falla con las fotos del iPhone, que llegan en HEIC o sin tipo MIME reconocido.
 - Vista previa (v3): al elegir archivos se muestra la primera página del PDF (con anterior/siguiente) o la imagen; tras procesar, se muestra la primera página del PDF generado o la imagen resultante.
 - v3.1: el CSS ya no anula el atributo `hidden` (se veía contenido viejo y un icono de imagen rota) y la zona de subida ya no se corta ni se solapa con la descripción. Márgenes para celular: respeta el área segura del iPhone (notch e indicador de inicio) y el botón de procesar ocupa todo el ancho. El paso de página de la vista previa seguía sin dibujar (lienzo en blanco al pasar a la página 2 y al volver): la v3.1 no lo arregló.
-- v3.2: la vista previa dibuja cada página en un lienzo nuevo (el lienzo reutilizado quedaba en blanco tras el primer dibujo), así que pasar de página y volver ya redibuja. El service worker ya no sirve páginas viejas de su caché: con internet, cada visita trae lo último del servidor (y lo guarda para sin conexión); sin conexión, sirve la copia guardada. Esto evita que una visita tras un despliegue siga viendo la versión anterior.
+- v3.2: el service worker ya no sirve páginas viejas de su caché: con internet, cada visita trae lo último del servidor (y lo guarda para sin conexión); sin conexión, sirve la copia guardada. Esto evita que una visita tras un despliegue siga viendo la versión anterior. El intento de arreglar el paso de página con un lienzo nuevo por dibujo NO funcionó: la v3.2 en vivo seguía dejando el lienzo en blanco al pasar a la página 2 y al volver (verificado 18:11 AST).
+- v3.3: la vista previa ya no vuelve a dibujar una página: cada página se dibuja una sola vez y su lienzo queda guardado (máximo 12 páginas en memoria); al pasar de página se muestra el lienzo ya dibujado. El patrón que se observó en vivo es que solo el primer dibujo de cada documento pinta algo y los siguientes salen en blanco aunque no den error, así que no redibujar es el arreglo. Al cambiar de archivo se limpia la memoria de lienzos.
 
 ## Límites honestos
 - Word, Excel y PowerPoint se crean a partir del texto del PDF: se conserva el texto y su orden, no el diseño exacto, las tablas complejas ni las imágenes. Un PDF escaneado (solo imágenes, sin texto) produce un documento vacío: usa OCR primero para leerlo.
