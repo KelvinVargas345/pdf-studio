@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5b5ce2"><title>PDF Studio</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#f5f6fb;--card:#fff;--ink:#202238;--muted:#74788e;--line:#e7e8f0;--accent:#5b5ce2;--soft:#eeeeff;--good:#16865b;--shadow:0 12px 35px #2022380c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}.top{max-width:1180px;margin:auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:10px;align-items:center;font-weight:800;font-size:20px}.logo{background:var(--accent);color:white;border-radius:12px;padding:8px 10px}.top small{color:var(--muted)}
+main{max-width:1180px;margin:34px auto;padding:0 22px}.hero{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:24px}.hero h1{font-size:clamp(28px,4vw,40px);margin:0 0 8px;letter-spacing:-1.3px}.hero p{margin:0;color:var(--muted)}.privacy{background:#e8f7ef;color:#176b49;padding:9px 13px;border-radius:30px;font-size:13px;font-weight:650;white-space:nowrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}.tab{border:1px solid var(--line);background:var(--card);padding:9px 14px;border-radius:10px;color:var(--muted);cursor:pointer}.tab.active{background:var(--soft);border-color:#c9caff;color:var(--accent);font-weight:700}
+.layout{display:grid;grid-template-columns:1fr 320px;gap:20px}.panel,.side,.tool{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.panel{padding:22px;min-height:390px}.side{padding:20px;height:max-content}.panel h2{margin:0 0 5px;font-size:21px}.sub{color:var(--muted);margin:0 0 20px}.drop{border:2px dashed #c9cbe0;border-radius:16px;padding:34px 18px;text-align:center;background:#fafaff;cursor:pointer}.drop.drag{border-color:var(--accent);background:var(--soft)}.drop .symbol{font-size:32px}.drop strong{display:block;margin:8px}.drop span{color:var(--muted);font-size:13px}input[type=file]{display:none}
+.filelist{margin-top:16px;display:grid;gap:8px}.file{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;border:1px solid var(--line);border-radius:11px;gap:12px}.file b{font-size:13px;overflow-wrap:anywhere}.file small{color:var(--muted)}.remove{border:0;background:#fff0f0;color:#c43e4a;border-radius:8px;padding:6px 9px;cursor:pointer}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:18px}.field{display:grid;gap:6px}.field label{font-size:13px;font-weight:650;color:#50546b}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:white;color:var(--ink);font:inherit}.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}.primary,.secondary{border:0;border-radius:11px;padding:12px 18px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:white}.primary:disabled{opacity:.45;cursor:not-allowed}.secondary{background:var(--soft);color:var(--accent)}.status{margin-top:14px;color:var(--muted);font-size:13px;min-height:20px}.toolgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.tool{padding:13px;text-align:left;cursor:pointer;box-shadow:none;transition:.15s}.tool:hover{border-color:#b7b8fa;transform:translateY(-1px)}.tool .ico{font-size:21px}.tool b{display:block;margin:5px 0 2px;font-size:13px}.tool small{color:var(--muted);font-size:11px}.tool.active{background:var(--soft);border-color:#c4c5ff}.side h3{margin:0 0 13px}.note{font-size:12px;color:var(--muted);line-height:1.55;margin-top:16px}.notice{background:#fff8e7;border:1px solid #f3e2b5;padding:12px;border-radius:11px;color:#755b1c;font-size:12px;margin-top:14px}
+footer{max-width:1180px;margin:28px auto;padding:0 22px 30px;color:var(--muted);font-size:12px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.side{order:-1}.toolgrid{grid-template-columns:repeat(4,1fr)}.tool{padding:9px}.tool small{display:none}}
+@media(max-width:560px){main{margin:22px auto;padding:0 14px}.top{padding:12px 14px}.hero{display:block}.privacy{display:inline-block;margin-top:14px}.panel{padding:16px}.toolgrid{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr}.drop{padding:26px 12px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="brand"><span class="logo">PDF</span> Studio</div><small>Herramientas para tus documentos</small></div></header>
+<main>
+<section class="hero"><div><h1>Todo tu PDF, en un solo lugar.</h1><p>Organiza, convierte y optimiza documentos desde tu navegador.</p></div><div class="privacy">● Procesamiento local prioritario</div></section>
+<div class="tabs"><button class="tab active" data-tab="organize">Organizar</button><button class="tab" data-tab="convert">Convertir</button><button class="tab" data-tab="edit">Editar</button><button class="tab" data-tab="security">Seguridad</button></div>
+<div class="layout"><section class="panel">
+<h2 id="toolTitle">Unir PDF</h2><p class="sub" id="toolDesc">Combina varios archivos PDF en un solo documento.</p>
+<label class="drop" id="drop"><input id="files" type="file" multiple accept=".pdf,application/pdf,image/png,image/jpeg"><div class="symbol">＋</div><strong>Selecciona o arrastra tus archivos aquí</strong><span>PDF e imágenes JPG/PNG · Los archivos permanecen en este dispositivo</span></label>
+<div class="filelist" id="fileList"></div>
+<div class="controls" id="controls"></div>
+<div class="actions"><button class="primary" id="run" disabled>Procesar PDF</button><button class="secondary" id="clear">Limpiar archivos</button></div><div class="status" id="status" aria-live="polite"></div>
+</section>
+<aside class="side"><h3>Herramientas</h3><div class="toolgrid" id="toolgrid"></div><div class="notice">Tus documentos se procesan en tu navegador. No se envían a un servidor en esta versión.</div><p class="note">Para documentos confidenciales, utiliza un dispositivo de confianza y evita compartir archivos descargados públicamente.</p></aside></div>
+</main><footer>PDF Studio · Aplicación web progresiva (PWA). Algunas conversiones avanzadas requieren un motor especializado y no se simulan.</footer>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const tools=[
+{id:'merge',name:'Unir PDF',desc:'Combina varios archivos PDF en uno.',icon:'🧩',group:'organize'},
+{id:'split',name:'Dividir PDF',desc:'Extrae un rango de páginas a otro PDF.',icon:'✂️',group:'organize'},
+{id:'remove',name:'Eliminar páginas',desc:'Crea una copia sin las páginas indicadas.',icon:'🗑️',group:'organize'},
+{id:'rotate',name:'Rotar PDF',desc:'Rota todas las páginas del documento.',icon:'🔄',group:'organize'},
+{id:'imagespdf',name:'JPG/PNG a PDF',desc:'Convierte imágenes en un documento PDF.',icon:'🖼️',group:'convert'},
+{id:'pdfjpg',name:'PDF a JPG',desc:'Exporta las páginas como imágenes JPG.',icon:'🌄',group:'convert'},
+{id:'compress',name:'Comprimir PDF',desc:'Optimiza y vuelve a guardar el documento.',icon:'📦',group:'convert'},
+{id:'watermark',name:'Marca de agua',desc:'Añade una marca de agua de texto.',icon:'💧',group:'edit'},
+{id:'number',name:'Numerar páginas',desc:'Añade números al pie de cada página.',icon:'🔢',group:'edit'},
+{id:'protect',name:'Proteger PDF',desc:'Cifra el PDF con contraseña.',icon:'🔒',group:'security'},
+{id:'word',name:'PDF a Word',desc:'Conversión editable: requiere motor externo.',icon:'📝',group:'convert',advanced:true},
+{id:'excel',name:'PDF a Excel',desc:'Extracción de tablas: requiere motor externo.',icon:'📊',group:'convert',advanced:true},
+{id:'ppt',name:'PDF a PowerPoint',desc:'Conversión editable: requiere motor externo.',icon:'📽️',group:'convert',advanced:true},
+{id:'unlock',name:'Desbloquear PDF',desc:'Requiere la contraseña válida del archivo.',icon:'🔓',group:'security',advanced:true},
+{id:'sign',name:'Firmar PDF',desc:'Firma visual: próximamente.',icon:'✍️',group:'edit',advanced:true},
+{id:'ocr',name:'OCR',desc:'Reconocimiento de texto: requiere motor OCR.',icon:'🔎',group:'convert',advanced:true}
+];
+let selected='merge', picked=[];
+const $=id=>document.getElementById(id);
+const fmt=n=>n<1024*1024?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';
+function renderTools(group='organize'){ $('toolgrid').innerHTML=tools.filter(t=>t.group===group).map(t=>`<button class="tool ${t.id===selected?'active':''}" data-tool="${t.id}"><span class="ico">${t.icon}</span><b>${t.name}</b><small>${t.desc}</small></button>`).join('');}
+function choose(id){selected=id;const t=tools.find(x=>x.id===id);$('toolTitle').textContent=t.name;$('toolDesc').textContent=t.desc;$('run').textContent=t.advanced?'Ver requisitos':'Procesar';$('run').disabled=false;renderTools(document.querySelector('.tab.active').dataset.tab);renderControls();}
+function renderControls(){let html='';const field=(label,id,placeholder,value='')=>`<div class="field"><label>${label}</label><input id="${id}" placeholder="${placeholder}" value="${value}"></div>`;
+if(selected==='split')html=field('Páginas a extraer (ej. 1-3,5)','range','1-3,5');
+if(selected==='remove')html=field('Páginas que deseas eliminar','range','2,4-6');
+if(selected==='rotate')html=`<div class="field"><label>Rotación</label><select id="degrees"><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div>`;
+if(selected==='watermark')html=field('Texto de marca de agua','watermark','CONFIDENCIAL','CONFIDENCIAL');
+if(selected==='number')html=field('Texto antes del número (opcional)','prefix','Ej. Página','Página ');
+if(selected==='protect')html=field('Contraseña','password','Escribe una contraseña');
+$('controls').innerHTML=html;}
+function renderFiles(){$('fileList').innerHTML=picked.map((f,i)=>`<div class="file"><div><b>${f.name}</b><br><small>${fmt(f.size)}</small></div><button class="remove" data-remove="${i}">Quitar</button></div>`).join('');$('run').disabled=!picked.length;}
+$('toolgrid').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b)choose(b.dataset.tool)});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));renderTools(b.dataset.tab);const first=tools.find(t=>t.group===b.dataset.tab);choose(first.id)});
+$('drop').onclick=()=>$('files').click();
+$('files').onchange=e=>{picked.push(...e.target.files);renderFiles();e.target.value=''};
+$('drop').ondragover=e=>{e.preventDefault();$('drop').classList.add('drag')};$('drop').ondragleave=()=> $('drop').classList.remove('drag');
+$('drop').ondrop=e=>{e.preventDefault();$('drop').classList.remove('drag');picked.push(...e.dataTransfer.files);renderFiles()};
+$('fileList').onclick=e=>{const b=e.target.closest('[data-remove]');if(b){picked.splice(+b.dataset.remove,1);renderFiles()}};
+$('clear').onclick=()=>{picked=[];renderFiles();$('status').textContent='Archivos retirados.'};
+function download(bytes,name,type='application/pdf'){const blob=new Blob([bytes],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function parseRange(s,total){let out=new Set();for(const part of s.split(',')){let [a,b]=part.trim().split('-').map(Number);if(!a||a<1||a>total)continue;b=b||a;for(let i=a;i<=Math.min(b,total);i++)out.add(i-1)}return [...out].sort((a,b)=>a-b)}
+async function process(){
+const t=tools.find(x=>x.id===selected);if(t.advanced){$('status').textContent='Esta función requiere un motor adicional. No se ha modificado ni enviado ningún archivo.';return}
+try{$('run').disabled=true;$('status').textContent='Procesando localmente…';const {PDFDocument,StandardFonts,rgb,degrees}=PDFLib;
+if(selected==='imagespdf'){const out=await PDFDocument.create();for(const f of picked){const bytes=await f.arrayBuffer();let img;if(f.type==='image/png')img=await out.embedPng(bytes);else if(f.type==='image/jpeg')img=await out.embedJpg(bytes);else continue;const page=out.addPage([img.width,img.height]);page.drawImage(img,{x:0,y:0,width:img.width,height:img.height})}download(await out.save(),'imagenes.pdf')}
+else if(selected==='merge'){const out=await PDFDocument.create();for(const f of picked){const src=await PDFDocument.load(await f.arrayBuffer());const pages=await out.copyPages(src,src.getPageIndices());pages.forEach(p=>out.addPage(p))}download(await out.save(),'unido.pdf')}
+else if(selected==='pdfjpg'){const f=picked[0],doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;for(let n=1;n<=doc.numPages;n++){const p=await doc.getPage(n),v=p.getViewport({scale:1.7}),c=document.createElement('canvas');c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise;const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));download(await blob.arrayBuffer(),`pagina-${n}.jpg`,'image/jpeg')}}
+else{const f=picked[0],pdf=await PDFDocument.load(await f.arrayBuffer()),pages=pdf.getPages();
+if(selected==='split'||selected==='remove'){const chosen=parseRange($('range').value,pages.length);const indices=selected==='split'?chosen:pages.map((_,i)=>i).filter(i=>!chosen.includes(i));const out=await PDFDocument.create(),copied=await out.copyPages(pdf,indices);copied.forEach(p=>out.addPage(p));download(await out.save(),selected==='split'?'extraido.pdf':'sin-paginas.pdf')}
+if(selected==='rotate'){const deg=Number($('degrees').value);pages.forEach(p=>p.setRotation(degrees((p.getRotation().angle+deg)%360)));download(await pdf.save(),'rotado.pdf')}
+if(selected==='watermark'||selected==='number'){const font=await pdf.embedFont(StandardFonts.Helvetica);pages.forEach((p,i)=>{const {width,height}=p.getSize();if(selected==='watermark'){p.drawText($('watermark').value||'CONFIDENCIAL',{x:width*.15,y:height*.48,size:34,font,color:rgb(.7,.7,.7),opacity:.35,rotate:degrees(35)})}else{const s=($('prefix').value||'')+(i+1);p.drawText(s,{x:width/2-20,y:18,size:10,font,color:rgb(.25,.25,.25)})}});download(await pdf.save(),selected==='watermark'?'con-marca-de-agua.pdf':'numerado.pdf')}
+if(selected==='compress'){download(await pdf.save({useObjectStreams:true,addDefaultPage:false}), 'optimizado.pdf')}
+if(selected==='protect'){$('status').textContent='La biblioteca local utilizada no cifra PDFs. Para proteger archivos se necesita integrar un motor de cifrado fiable; no se generó un archivo sin protección.'}
+}
+$('status').textContent='Listo. La descarga se ha generado en tu dispositivo.';
+}catch(err){console.error(err);$('status').textContent='No se pudo procesar el archivo. Comprueba que sea un PDF válido y que no tenga restricciones.'}
+finally{$('run').disabled=!picked.length}
+}
+$('run').onclick=process;renderTools();choose('merge');
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script></body></html>
